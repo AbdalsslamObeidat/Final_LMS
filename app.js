@@ -8,6 +8,7 @@ import categoryRoutes from './routes/categoryRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import ModuleRoutes from './routes/moduleRoutes.js';
 import lessonRoutes from './routes/lessonRoutes.js';
+import QuizRoutes from './routes/quizRoutes.js';
 import { notFound, errorHandler } from './middleware/error.js';
 import './config/db.js';
 
@@ -35,6 +36,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/modules', ModuleRoutes);
 app.use('/api/lessons',lessonRoutes);
+app.use('/api/quizzes',QuizRoutes);
 
 
 // Health check

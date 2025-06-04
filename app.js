@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
+import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import { notFound, errorHandler } from './middleware/error.js';
 import './config/db.js';
 
@@ -29,6 +30,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes); 
 app.use('/api/categories', categoryRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
+
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'OK' }));

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from '../config/passport.js';
 import AuthController from '../controllers/authController.js';
+import OAuthController from '../controllers/oAuthController.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
@@ -26,13 +27,13 @@ router.get('/google/callback',
     session: false,
     failureRedirect: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login?error=oauth_failed`
   }),
-  AuthController.googleCallback
+  OAuthController.googleCallback
 );
 
 // Alternative callback for API responses (useful for mobile apps)
 router.get('/google/callback/api',
   passport.authenticate('google', { session: false }),
-  AuthController.googleCallbackAPI
+  OAuthController.googleCallbackAPI
 );
 
 // Link Google account (for existing users)

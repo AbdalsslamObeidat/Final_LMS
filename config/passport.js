@@ -12,7 +12,7 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Check if user already exists with this Google ID
-    let user = await UserModel.findByOAuth(profile.id);
+    let user = await UserModel.findByOAuth('google', profile.id);
     
     if (user) {
       return done(null, user);

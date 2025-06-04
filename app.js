@@ -7,9 +7,9 @@ import courseRoutes from './routes/courseRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
 import ModuleRoutes from './routes/moduleRoutes.js';
+import lessonRoutes from './routes/lessonRoutes.js';
 import { notFound, errorHandler } from './middleware/error.js';
 import './config/db.js';
-import ModuleController from './controllers/moduleController.js';
 
 const app = express();
 
@@ -34,6 +34,7 @@ app.use('/api/courses', courseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/modules', ModuleRoutes);
+app.use('/api/lessons',lessonRoutes);
 
 
 // Health check

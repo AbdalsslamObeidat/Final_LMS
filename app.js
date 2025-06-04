@@ -10,6 +10,7 @@ import ModuleRoutes from './routes/moduleRoutes.js';
 import lessonRoutes from './routes/lessonRoutes.js';
 import QuizRoutes from './routes/quizRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
+import assignmentRoutes from './routes/assignmentRoutes.js';
 
 import { notFound, errorHandler } from './middleware/error.js';
 import './config/db.js';
@@ -40,6 +41,8 @@ app.use('/api/modules', ModuleRoutes);
 app.use('/api/lessons',lessonRoutes);
 app.use('/api/quizzes',QuizRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/assignments', assignmentRoutes);
+
 
 
 // Health check

@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js';
+import courseRoutes from './routes/courseRoutes.js';
 import { notFound, errorHandler } from './middleware/error.js';
 import './config/db.js';
 
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/courses', courseRoutes); 
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'OK' }));

@@ -49,13 +49,15 @@ const UserModel = {
     return rows[0];
   },
 
-  async findById(id) {
-    const { rows } = await query(
-      'SELECT id, email, name, oauth_provider, oauth_id, role, avatar, is_active FROM users WHERE id = $1 AND is_active = true',
-      [id]
-    );
-    return rows[0];
-  },
+async findById(id) {
+  const { rows } = await query(
+    `SELECT id, email, name, oauth_provider, oauth_id, role, avatar, password, is_active 
+     FROM users WHERE id = $1 AND is_active = true`,
+    [id]
+  );
+  return rows[0];
+},
+
 
   async findByOAuth(provider, oauthId) {
     const { rows } = await query(

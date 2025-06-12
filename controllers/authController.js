@@ -1,4 +1,5 @@
 import UserModel from "../models/userModel.js";
+
 import {
   registerSchema,
   loginSchema,
@@ -18,7 +19,7 @@ const AuthController = {
       if (existingUser) throw new Error("Email already in use");
 
       const user = await UserModel.create({ email, password, name });
-      const token = UserModel.generateToken(user.id);
+      const token = UserModel.generateToken(user);
       
       res.status(201).json({
         success: true,
@@ -49,7 +50,7 @@ const AuthController = {
       const isMatch = await UserModel.verifyPassword(password, user.password_hash);
       if (!isMatch) throw new Error("Invalid credentials");
 
-      const token = UserModel.generateToken(user.id);
+      const token = UserModel.generateToken(user);
 
       res.json({
         success: true,
@@ -144,26 +145,7 @@ const AuthController = {
     }
   },
 
-  // Update user profile
-  async updateProfile(req, res, next) {
-    try {
-      const { name, avatar } = req.body;
-      
-      if (!name && !avatar) {
-        throw new Error("At least one field (name or avatar) is required");
-      }
-
-      const updatedUser = await UserModel.updateProfile(req.user.id, { name, avatar });
-
-      res.json({
-        success: true,
-        message: "Profile updated successfully",
-        user: updatedUser,
-      });
-    } catch (error) {
-      next(error);
-    }
-  },
+ 
 };
 
 export default AuthController;

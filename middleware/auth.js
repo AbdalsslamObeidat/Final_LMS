@@ -11,6 +11,9 @@ export const authenticate = async (req, res, next) => {
       error.statusCode = 401;
       throw error;
     }
+    if (!process.env.JWT_SECRET) {
+  throw new Error('Missing JWT_SECRET in environment variables');
+}
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await UserModel.findById(decoded.id);
@@ -40,9 +43,15 @@ export const authorize = (roles = []) => {
   return (req, res, next) => {
     if (roles.length && (!req.user || !roles.includes(req.user.role))) {
       const error = new Error('Unauthorized access');
+      console.warn(`Unauthorized access by user ID: ${req.user?.id}`);
       error.statusCode = 403;
       return next(error);
     }
+    if (error.name === 'TokenExpiredError') {
+  error.message = 'Session expired, please log in again';
+  error.statusCode = 401;
+}
+
     next();
   };
 };

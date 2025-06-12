@@ -8,7 +8,7 @@ const UserModel = {
       const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
       
       const { rows } = await query(
-        `INSERT INTO users (email, password, name, is_active)
+        `INSERT INTO users (email, password_hash, name, is_active)
          VALUES ($1, $2, $3, $4)
          RETURNING id, email, name, created_at`,
         [email, hashedPassword, name, true]
@@ -43,7 +43,7 @@ const UserModel = {
 
   async findByEmail(email) {
     const { rows } = await query(
-      'SELECT id, email, password, name, oauth_provider, oauth_id, role, avatar, is_active FROM users WHERE email = $1 AND is_active = true',
+      'SELECT id, email, password_hash, name, oauth_provider, oauth_id, role, avatar, is_active FROM users WHERE email = $1 AND is_active = true',
       [email]
     );
     return rows[0];
@@ -51,7 +51,7 @@ const UserModel = {
 
 async findById(id) {
   const { rows } = await query(
-    `SELECT id, email, name, oauth_provider, oauth_id, role, avatar, password, is_active 
+    `SELECT id, email, name, oauth_provider, oauth_id, role, avatar, password_hash, is_active 
      FROM users WHERE id = $1 AND is_active = true`,
     [id]
   );
@@ -60,12 +60,13 @@ async findById(id) {
 
 
   async findByOAuth(provider, oauthId) {
-    const { rows } = await query(
-      'SELECT id, email, name, oauth_provider, oauth_id, role, avatar, is_active FROM users WHERE oauth_provider = $1 AND oauth_id = $2 AND is_active = true',
-      [provider, oauthId]
-    );
-    return rows[0];
-  },
+  const { rows } = await query(
+    'SELECT id, email, name, oauth_provider, oauth_id, role, avatar, is_active FROM users WHERE oauth_provider = $1 AND oauth_id = $2 AND is_active = true',
+    [provider, oauthId]
+  );
+  return rows[0];
+},
+
 
   async linkOAuthAccount(userId, provider, oauthId) {
     await query(
@@ -74,11 +75,26 @@ async findById(id) {
     );
   },
 
-  generateToken(userId) {
-    return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '1d',
-    });
-  },
+  // generateToken(userId) {
+  //   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+  //     expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+  //   });
+  // }
+  generateToken(user) {
+  const payload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role || 'student', // default to 'student' if undefined
+    avatar: user.avatar || null,
+    provider: user.oauth_provider || 'local'
+  };
+
+  return jwt.sign(payload, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '1d',
+  });
+},
+
 
   async verifyPassword(candidatePassword, hashedPassword) {
     if (!hashedPassword) return false; // For Google OAuth users without password
@@ -88,7 +104,7 @@ async findById(id) {
   async updatePassword(userId, newPassword) {
     const hashedPassword = await bcrypt.hash(newPassword, parseInt(process.env.BCRYPT_SALT_ROUNDS));
     await query(
-      'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [hashedPassword, userId]
     );
   },
@@ -97,38 +113,11 @@ async findById(id) {
   async setPassword(userId, password) {
     const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS));
     await query(
-      'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+      'UPDATE users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [hashedPassword, userId]
     );
   },
 
-  // Update user profile
-  async updateProfile(userId, { name, avatar }) {
-    const updates = [];
-    const values = [];
-    let paramCount = 1;
-
-    if (name) {
-      updates.push(`name = ${paramCount++}`);
-      values.push(name);
-    }
-    if (avatar) {
-      updates.push(`avatar = ${paramCount++}`);
-      values.push(avatar);
-    }
-
-    if (updates.length === 0) return;
-
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(userId);
-
-    const { rows } = await query(
-      `UPDATE users SET ${updates.join(', ')} WHERE id = ${paramCount} RETURNING id, email, name, avatar, oauth_provider, oauth_id, role`,
-      values
-    );
-
-    return rows[0];
-  },
 
   // Deactivate user (soft delete)
   async deactivateUser(userId) {

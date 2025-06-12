@@ -5,6 +5,7 @@ import {
   changePasswordSchema,
 } from "../utils/validation.js";
 
+
 const AuthController = {
   async register(req, res, next) {
     try {
@@ -18,7 +19,7 @@ const AuthController = {
 
       const user = await UserModel.create({ email, password, name });
       const token = UserModel.generateToken(user.id);
-
+      
       res.status(201).json({
         success: true,
         token,
@@ -26,6 +27,7 @@ const AuthController = {
           id: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
           createdAt: user.created_at,
         },
       });
@@ -44,7 +46,7 @@ const AuthController = {
       const user = await UserModel.findByEmail(email);
       if (!user) throw new Error("Invalid credentials");
 
-      const isMatch = await UserModel.verifyPassword(password, user.password);
+      const isMatch = await UserModel.verifyPassword(password, user.password_hash);
       if (!isMatch) throw new Error("Invalid credentials");
 
       const token = UserModel.generateToken(user.id);
@@ -91,7 +93,7 @@ const AuthController = {
     try {
       // Check if user has a password (not OAuth-only account)
       const user = await UserModel.findById(req.user.id);
-      if (!user.password && user.oauth_provider) {
+      if (!user.password_hash && user.oauth_provider) {
         throw new Error("Cannot change password for OAuth account. Please set a password first.");
       }
 
@@ -102,7 +104,7 @@ const AuthController = {
 
       const isMatch = await UserModel.verifyPassword(
         currentPassword,
-        user.password
+        user.password_hash
       );
       if (!isMatch) throw new Error("Current password is incorrect");
 
@@ -120,18 +122,18 @@ const AuthController = {
   // Set password for OAuth-only users
   async setPassword(req, res, next) {
     try {
-      const { password } = req.body;
+      const { password_hash } = req.body;
       
-      if (!password || password.length < 8) {
-        throw new Error("Password must be at least 8 characters long");
+      if (!password_hash || password_hash.length < 8) {
+        throw new Error("Password_hash must be at least 8 characters long");
       }
 
       const user = await UserModel.findById(req.user.id);
-      if (user.password) {
+      if (user.password_hash) {
         throw new Error("User already has a password. Use change password instead.");
       }
 
-      await UserModel.setPassword(req.user.id, password);
+      await UserModel.setPassword(req.user.id, password_hash);
 
       res.json({
         success: true,

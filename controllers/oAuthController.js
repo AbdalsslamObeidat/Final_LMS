@@ -28,6 +28,7 @@ const OAuthController = {
           id: user.id,
           name: user.name,
           email: user.email,
+           role: user.role,
           avatar: user.avatar,
           oauth_provider: user.oauth_provider,
           oauth_id: user.oauth_id,

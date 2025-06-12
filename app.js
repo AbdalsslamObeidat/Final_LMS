@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import authRoutes from './routes/authRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import enrollmentRoutes from './routes/enrollmentRoutes.js';
@@ -12,6 +13,7 @@ import QuizRoutes from './routes/quizRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
+
 
 import { notFound, errorHandler } from './middleware/error.js';
 import './config/db.js';
@@ -35,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/courses', courseRoutes); 
 app.use('/api/categories', categoryRoutes);
 app.use('/api/enrollments', enrollmentRoutes);

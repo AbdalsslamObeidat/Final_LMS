@@ -62,7 +62,47 @@ const CourseModel = {
     } catch (error) {
       throw new Error('Failed to delete course');
     }
+  },
+
+  async updateApprovalStatus(courseId, isApproved) {
+  try {
+    const { rows } = await query(
+      `UPDATE courses
+       SET is_approved = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [isApproved, courseId]
+    );
+    return rows[0];
+  } catch (error) {
+    throw new Error('Failed to update course approval status');
   }
+},
+async findPending() {
+  const { rows } = await query(
+    'SELECT * FROM courses WHERE is_approved = false'
+  );
+  return rows;
+},
+
+
+async updatePublishStatus(courseId, isPublished) {
+  try {
+    const { rows } = await query(
+      `UPDATE courses
+       SET is_published = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [isPublished, courseId]
+    );
+    return rows[0];
+  } catch (error) {
+    throw new Error('Failed to update course publish status');
+  }
+}
+
+
+
 };
 
 export default CourseModel;

@@ -15,6 +15,9 @@ router.get('/get/:id', EnrollmentController.getById);
 // Update enrollment by ID
 router.put('/update/:id', EnrollmentController.update);
 
+//This route lets the frontend update progress when a student completes a lesson or module.
+router.patch('/progress/:id', EnrollmentController.updateProgress);
+
 // Delete enrollment by ID
 router.delete('/delete/:id', EnrollmentController.delete);
 

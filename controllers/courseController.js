@@ -85,6 +85,69 @@ const CourseController = {
       res.status(500).json({ message: error.message });
     }
   },
+
+async approveOrReject(req, res) {
+  try {
+    const courseId = req.params.id;
+    const { isApproved } = req.body;
+
+    if (typeof isApproved !== 'boolean') {
+      return res.status(400).json({ message: 'isApproved must be true or false' });
+    }
+
+    const updatedCourse = await CourseModel.updateApprovalStatus(courseId, isApproved);
+
+    if (!updatedCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.json({
+      message: `Course has been ${isApproved ? 'approved' : 'rejected'}`,
+      course: updatedCourse,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+},
+
+async getPendingCourses(req, res) {
+  try {
+    const pendingCourses = await CourseModel.findPending();
+    res.json(pendingCourses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+},
+
+// Publish or Unpublish a course
+async publishOrUnpublish(req, res) {
+  try {
+    const courseId = req.params.id;
+    const { isPublished } = req.body;
+
+    if (typeof isPublished !== 'boolean') {
+      return res.status(400).json({ message: 'isPublished must be true or false' });
+    }
+
+    const updatedCourse = await CourseModel.updatePublishStatus(courseId, isPublished);
+
+    if (!updatedCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.json({
+      message: `Course has been ${isPublished ? 'published' : 'unpublished'}`,
+      course: updatedCourse,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+
+
+
+
 };
 
 export default CourseController;

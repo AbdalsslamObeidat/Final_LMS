@@ -17,5 +17,12 @@ router.put('/update/:id', CourseController.update);
 
 // DELETE /api/courses/delete/:id
 router.delete('/delete/:id', CourseController.delete);
+// Course approval
+router.patch('/courses/:id/approval', CourseController.approveOrReject);
 
+//Show pending courses for admin review
+router.get('/courses/pending', CourseController.getPendingCourses);
+
+//publish courses
+router.patch('/courses/:id/publish', CourseController.publishOrUnpublish);
 export default router;

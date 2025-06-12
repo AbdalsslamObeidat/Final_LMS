@@ -54,6 +54,22 @@ const EnrollmentController = {
     }
   },
 
+  async updateProgress(req, res) {
+  try {
+    const { progress } = req.body;
+    if (progress == null) return res.status(400).json({ message: 'Progress is required' });
+
+    const updatedEnrollment = await EnrollmentModel.update(req.params.id, { progress });
+    if (!updatedEnrollment) return res.status(404).json({ message: 'Enrollment not found' });
+
+    res.json(updatedEnrollment);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Failed to update progress', error: error.message });
+  }
+},
+
+
   async delete(req, res) {
     try {
       await EnrollmentModel.delete(req.params.id);

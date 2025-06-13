@@ -1,4 +1,5 @@
 import UserModel from "../models/userModel.js";
+import jwt from "jsonwebtoken";
 
 import {
   registerSchema,
@@ -6,6 +7,7 @@ import {
   changePasswordSchema,
 } from "../utils/validation.js";
 
+import { generateToken, generateRefreshToken } from "../utils/jwt.js";
 
 const AuthController = {
   async register(req, res, next) {
@@ -20,7 +22,25 @@ const AuthController = {
 
       const user = await UserModel.create({ email, password, name });
       const token = UserModel.generateToken(user);
-      
+
+      // Set HTTP-only cookies for access & refresh tokens
+      const accessToken = generateToken({ id: user.id, email: user.email });
+      const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      });
+
       res.status(201).json({
         success: true,
         token,
@@ -51,6 +71,24 @@ const AuthController = {
       if (!isMatch) throw new Error("Invalid credentials");
 
       const token = UserModel.generateToken(user);
+
+      // Set HTTP-only cookies for access & refresh tokens
+      const accessToken = generateToken({ id: user.id, email: user.email });
+      const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 30 * 24 * 60 * 60 * 1000,
+      });
 
       res.json({
         success: true,
@@ -95,7 +133,9 @@ const AuthController = {
       // Check if user has a password (not OAuth-only account)
       const user = await UserModel.findById(req.user.id);
       if (!user.password_hash && user.oauth_provider) {
-        throw new Error("Cannot change password for OAuth account. Please set a password first.");
+        throw new Error(
+          "Cannot change password for OAuth account. Please set a password first."
+        );
       }
 
       const { error, value } = changePasswordSchema.validate(req.body);
@@ -124,7 +164,7 @@ const AuthController = {
   async setPassword(req, res, next) {
     try {
       const { password_hash } = req.body;
-      
+
       if (!password_hash || password_hash.length < 8) {
         throw new Error("Password_hash must be at least 8 characters long");
       }
@@ -145,7 +185,61 @@ const AuthController = {
     }
   },
 
- 
+  // New logout method
+  logout(req, res) {
+    try {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+      // If you use sessions:
+      res.clearCookie("sessionId");
+
+      res.json({
+        success: true,
+        message: "Logged out successfully",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Logout failed",
+        error: error.message,
+      });
+    }
+  },
+
+  // New refreshToken method
+  refreshToken(req, res) {
+    try {
+      const token = req.cookies.refreshToken;
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: "No refresh token provided",
+        });
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const newAccessToken = generateToken({ id: decoded.id, email: decoded.email });
+
+      res.cookie("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.json({
+        success: true,
+        message: "Token refreshed successfully",
+        accessToken: newAccessToken,
+      });
+    } catch (error) {
+      res.status(403).json({
+        success: false,
+        message: "Invalid refresh token",
+        error: error.message,
+      });
+    }
+  },
 };
 
 export default AuthController;

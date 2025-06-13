@@ -15,6 +15,8 @@ router.post("/login", AuthController.login);
 router.get("/me", authenticate, AuthController.getMe);
 router.put("/change-password", authenticate, AuthController.changePassword);
 router.post("/set-password", authenticate, AuthController.setPassword);
+router.post("/logout", AuthController.logout);
+router.post("/refresh-token", AuthController.refreshToken);
 
 // Google OAuth routes
 console.log(">> FRONTEND_URL:", process.env.FRONTEND_URL);
@@ -37,7 +39,7 @@ router.get(
 //   }
 // );
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login', session: false }),
+  passport.authenticate('google', { failureRedirect: '/login'}),
   async (req, res) => {
     try {
       const user = req.user;

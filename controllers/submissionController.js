@@ -60,7 +60,33 @@ const submissionController = {
       console.error('Error deleting submission:', error);
       res.status(500).json({ message: 'Internal Server Error' });
     }
+  },
+
+  // controllers/submissionController.js
+async gradeSubmission(req, res) {
+  try {
+    const { grade, feedback } = req.body;
+    const { id } = req.params;
+
+    if (grade === undefined || grade === null) {
+      return res.status(400).json({ message: 'Grade is required' });
+    }
+
+    const updated = await submissionModel.updateGrade(id, grade, feedback);
+    if (!updated) {
+      return res.status(404).json({ message: 'Submission not found' });
+    }
+
+    res.json({
+      message: 'Submission graded successfully',
+      submission: updated
+    });
+  } catch (error) {
+    console.error('Error grading submission:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
+}
+
 };
 
 export default submissionController;

@@ -38,7 +38,19 @@ const submissionModel = {
   async delete(id) {
     const result = await query(`DELETE FROM submissions WHERE id = $1 RETURNING *`, [id]);
     return result.rows[0];
-  }
+  },
+async updateGrade(id, grade, feedback) {
+  const result = await query(
+    `UPDATE submissions
+     SET grade = $1,
+         feedback = $2,
+         updated_at = CURRENT_TIMESTAMP
+     WHERE id = $3 RETURNING *`,
+    [grade, feedback || null, id]
+  );
+  return result.rows[0];
+}
+
 };
 
 export default submissionModel;

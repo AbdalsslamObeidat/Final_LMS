@@ -8,44 +8,40 @@ dotenv.config();
 // Google OAuth Strategy
 passport.use(
   new GoogleStrategy(
-       {
+    {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_CALLBACK_URL,
       scope: ["profile", "email"],
-      passReqToCallback: true,
     },
-
-    async (req, accessToken, refreshToken, profile, done) => {
+    // accessToken and refreshToken are unused here, but required by Passport's signature
+    async (accessToken, refreshToken, profile, done) => {
       try {
-        const stateUserId = req.query.state;
+        // Try to find an existing user by Google ID
+        let user = await userModel.findByOAuth("google", profile.id);
 
-        // 👉 If stateUserId is present, it's a link request
-        if (stateUserId) {
-          const existingUser = await userModel.findById(stateUserId);
-          if (!existingUser) {
-            return done(new Error("User not found for linking"), null);
-          }
-
-          // Link Google account to existing user
-          existingUser.googleId = profile.id;
-          existingUser.avatar = profile.photos?.[0]?.value || existingUser.avatar;
-          existingUser.provider = "google";
-          await existingUser.save();
-
-          return done(null, existingUser);
+        if (user) {
+          return done(null, user);
         }
 
-        // Normal login flow
-        let user = await userModel.findByOAuth("google", profile.id);
+        // Optional: check by email to link local account automatically
+        const email = profile.emails?.[0]?.value;
+        user = await userModel.findByEmail(email);
+
         if (user) {
+          // Link Google account to existing user
+          user.googleId = profile.id;
+          user.avatar = profile.photos?.[0]?.value || user.avatar;
+          user.provider = "google";
+          await user.save();
+
           return done(null, user);
         }
 
         // Create new user
         const newUser = await userModel.createGoogleUser({
           googleId: profile.id,
-          email: profile.emails?.[0]?.value,
+          email,
           name: profile.displayName,
           avatar: profile.photos?.[0]?.value,
         });
@@ -59,13 +55,12 @@ passport.use(
   )
 );
 
-
-// Serialize user for session storage
+// Saves user.id in the session
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-// Deserialize user from session
+// Fetch the user from DB using the ID in the session
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await userModel.findById(id);

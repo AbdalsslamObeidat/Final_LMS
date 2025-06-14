@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-// Sanitize user data for client response
+// Sanitize user data for client response, removing sensitive data (pass,token)
 export const sanitizeUser = (user) => {
   if (!user) return null;
   const { id, email, name, avatar, provider, is_verified, created_at } = user;

@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import session from 'express-session';
 import './config/passport.js';
 import passport from 'passport';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
@@ -77,7 +78,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/progress',progressRoutes);
-
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

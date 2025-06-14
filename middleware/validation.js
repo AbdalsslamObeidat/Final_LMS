@@ -3,7 +3,7 @@ import { createResponse } from '../utils/helpers.js';
 
 // Handle validation errors
 export const handleValidationErrors = (req, res, next) => {
-  const errors = validationResult(req);
+  const errors = validationResult(req); // Error collecting from previous (body,query,params).
   if (!errors.isEmpty()) {
     return res.status(400).json(
       createResponse(false, 'Validation failed', null, errors.array())

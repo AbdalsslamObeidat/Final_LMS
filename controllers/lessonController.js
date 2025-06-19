@@ -1,4 +1,4 @@
-import LessonModel from '../models/lessonModel.js';
+import LessonModel from "../models/lessonModel.js";
 
 const LessonController = {
   // Handle request to create a new lesson
@@ -15,7 +15,7 @@ const LessonController = {
   async getById(req, res) {
     try {
       const lesson = await LessonModel.findById(req.params.id);
-      if (!lesson) return res.status(404).json({ error: 'Lesson not found' });
+      if (!lesson) return res.status(404).json({ error: "Lesson not found" });
       res.json(lesson);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -36,6 +36,9 @@ const LessonController = {
   async update(req, res) {
     try {
       const updated = await LessonModel.update(req.params.id, req.body);
+      if (!updated) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
       res.json(updated);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -45,12 +48,15 @@ const LessonController = {
   // Handle request to delete a lesson by ID
   async delete(req, res) {
     try {
-      await LessonModel.delete(req.params.id);
+      const deleted = await LessonModel.delete(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Lesson not found" });
+      }
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  }
+  },
 };
 
 export default LessonController;

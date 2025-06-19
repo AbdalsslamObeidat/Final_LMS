@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 // Sanitize user data for client response, removing sensitive data (pass,token)
 export const sanitizeUser = (user) => {
   if (!user) return null;
@@ -6,20 +6,9 @@ export const sanitizeUser = (user) => {
   return { id, email, name, avatar, provider, is_verified, created_at };
 };
 
-
-// Generate random string
-// export const generateRandomString = (length = 32) => {
-//   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-//   let result = '';
-//   for (let i = 0; i < length; i++) {
-//     result += chars.charAt(Math.floor(Math.random() * chars.length));
-//   }
-//   return result;
-// };
-
 // uses random bytes -> more secure
 export const generateRandomString = (length = 32) => {
-  return crypto.randomBytes(length).toString('hex').slice(0, length);
+  return crypto.randomBytes(length).toString("hex").slice(0, length);
 };
 
 // Validate email format
@@ -35,6 +24,6 @@ export const createResponse = (success, message, data = null, error = null) => {
     message,
     data,
     error,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   };
 };

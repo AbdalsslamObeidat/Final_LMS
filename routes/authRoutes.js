@@ -1,5 +1,5 @@
 import { Router } from "express";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 const { JsonWebTokenError } = jwt;
 import UserModel from "../models/userModel.js";
 import passport from "../config/passport.js";
@@ -28,7 +28,6 @@ router.get(
   })
 );
 
-
 // router.get(
 //   "/google/callback",
 //   passport.authenticate("google", {
@@ -38,23 +37,24 @@ router.get(
 // res.json({ success: true, token });
 //   }
 // );
-router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login'}),
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
   async (req, res) => {
     try {
       const user = req.user;
 
-      const token = UserModel.generateToken(user.id);
+      const token = UserModel.generateToken(user);
 
       res.json({
         success: true,
-        message: 'Logged in with Google successfully',
+        message: "Logged in with Google successfully",
         token,
         user,
       });
     } catch (error) {
-      console.error('Google callback error:', error);
-      res.status(500).json({ success: false, error: 'Internal server error' });
+      console.error("Google callback error:", error);
+      res.status(500).json({ success: false, error: "Internal server error" });
     }
   }
 );

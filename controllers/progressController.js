@@ -1,4 +1,4 @@
-import ProgressModel from '../models/progressModel.js';
+import ProgressModel from "../models/progressModel.js";
 
 const ProgressController = {
   /**
@@ -10,10 +10,10 @@ const ProgressController = {
 
     try {
       await ProgressModel.completeLesson(enrollmentId, lessonId);
-      res.status(200).json({ message: 'Lesson marked as completed' });
+      res.status(200).json({ message: "Lesson marked as completed" });
     } catch (error) {
-      console.error('Error marking lesson completed:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error("Error marking lesson completed:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   },
 
@@ -28,10 +28,10 @@ const ProgressController = {
       const progressData = await ProgressModel.calculateProgress(enrollmentId);
       res.status(200).json(progressData);
     } catch (error) {
-      console.error('Error fetching progress:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error("Error fetching progress:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
-  }
+  },
 };
 
 export default ProgressController;

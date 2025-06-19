@@ -1,17 +1,18 @@
-import CategoryModel from '../models/categoryModel.js';
+import CategoryModel from "../models/categoryModel.js";
 
 const CategoryController = {
   // Create a new category
   async create(req, res) {
     const { name } = req.body;
-    if (!name) return res.status(400).json({ message: 'Category name is required' });
+    if (!name)
+      return res.status(400).json({ message: "Category name is required" });
 
     try {
       const category = await CategoryModel.create({ name });
       res.status(201).json(category);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to create category' });
+      res.status(500).json({ message: "Failed to create category" });
     }
   },
 
@@ -22,7 +23,7 @@ const CategoryController = {
       res.json(categories);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to fetch categories' });
+      res.status(500).json({ message: "Failed to fetch categories" });
     }
   },
 
@@ -31,11 +32,12 @@ const CategoryController = {
     const { id } = req.params;
     try {
       const category = await CategoryModel.findById(id);
-      if (!category) return res.status(404).json({ message: 'Category not found' });
+      if (!category)
+        return res.status(404).json({ message: "Category not found" });
       res.json(category);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to fetch category' });
+      res.status(500).json({ message: "Failed to fetch category" });
     }
   },
 
@@ -43,15 +45,17 @@ const CategoryController = {
   async update(req, res) {
     const { id } = req.params;
     const { name } = req.body;
-    if (!name) return res.status(400).json({ message: 'Category name is required' });
+    if (!name)
+      return res.status(400).json({ message: "Category name is required" });
 
     try {
       const updatedCategory = await CategoryModel.update(id, { name });
-      if (!updatedCategory) return res.status(404).json({ message: 'Category not found' });
+      if (!updatedCategory)
+        return res.status(404).json({ message: "Category not found" });
       res.json(updatedCategory);
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to update category' });
+      res.status(500).json({ message: "Failed to update category" });
     }
   },
 
@@ -61,12 +65,12 @@ const CategoryController = {
 
     try {
       await CategoryModel.delete(id);
-      res.json({ message: 'Category deleted successfully' });
+      res.json({ message: "Category deleted successfully" });
     } catch (error) {
       console.error(error);
-      res.status(500).json({ message: 'Failed to delete category' });
+      res.status(500).json({ message: "Failed to delete category" });
     }
-  }
+  },
 };
 
 export default CategoryController;

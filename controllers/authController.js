@@ -1,5 +1,6 @@
 import UserModel from "../models/userModel.js";
 import jwt from "jsonwebtoken";
+import bcrypt from 'bcryptjs';
 
 import {
   registerSchema,
@@ -21,11 +22,13 @@ const AuthController = {
       if (existingUser) throw new Error("Email already in use");
 
       const user = await UserModel.create({ email, password, name });
-      const token = UserModel.generateToken(user);
 
       // Set HTTP-only cookies for access & refresh tokens
       const accessToken = generateToken({ id: user.id, email: user.email });
-      const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+      const refreshToken = generateRefreshToken({
+        id: user.id,
+        email: user.email,
+      });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -43,7 +46,7 @@ const AuthController = {
 
       res.status(201).json({
         success: true,
-        token,
+        accessToken,
         user: {
           id: user.id,
           name: user.name,
@@ -67,14 +70,19 @@ const AuthController = {
       const user = await UserModel.findByEmail(email);
       if (!user) throw new Error("Invalid credentials");
 
-      const isMatch = await UserModel.verifyPassword(password, user.password_hash);
+      const isMatch = await UserModel.verifyPassword(
+        password,
+        user.password_hash
+      );
       if (!isMatch) throw new Error("Invalid credentials");
 
-      const token = UserModel.generateToken(user);
 
       // Set HTTP-only cookies for access & refresh tokens
       const accessToken = generateToken({ id: user.id, email: user.email });
-      const refreshToken = generateRefreshToken({ id: user.id, email: user.email });
+      const refreshToken = generateRefreshToken({
+        id: user.id,
+        email: user.email,
+      });
 
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
@@ -92,7 +100,7 @@ const AuthController = {
 
       res.json({
         success: true,
-        token,
+        accessToken,
         user: {
           id: user.id,
           name: user.name,
@@ -163,17 +171,19 @@ const AuthController = {
   // Set password for OAuth-only users
   async setPassword(req, res, next) {
     try {
-      const { password_hash } = req.body;
+      const { password } = req.body;
 
-      if (!password_hash || password_hash.length < 8) {
-        throw new Error("Password_hash must be at least 8 characters long");
+      if (!password || password.length < 8) {
+        throw new Error("Password must be at least 8 characters long");
       }
 
       const user = await UserModel.findById(req.user.id);
       if (user.password_hash) {
-        throw new Error("User already has a password. Use change password instead.");
+        throw new Error(
+          "User already has a password. Use change password instead."
+        );
       }
-
+      const password_hash=await bcrypt.hash(password,10);
       await UserModel.setPassword(req.user.id, password_hash);
 
       res.json({
@@ -185,12 +195,19 @@ const AuthController = {
     }
   },
 
-  // New logout method
   logout(req, res) {
     try {
-      res.clearCookie("accessToken");
-      res.clearCookie("refreshToken");
-      // If you use sessions:
+      res.clearCookie("accessToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+      res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      });
+
       res.clearCookie("sessionId");
 
       res.json({
@@ -218,7 +235,10 @@ const AuthController = {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const newAccessToken = generateToken({ id: decoded.id, email: decoded.email });
+      const newAccessToken = generateToken({
+        id: decoded.id,
+        email: decoded.email,
+      });
 
       res.cookie("accessToken", newAccessToken, {
         httpOnly: true,

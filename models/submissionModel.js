@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const submissionModel = {
   async create({ assignment_id, user_id, submission_url, grade, feedback }) {
@@ -20,7 +20,10 @@ const submissionModel = {
     return result.rows[0];
   },
 
-  async update(id, { assignment_id, user_id, submission_url, grade, feedback }) {
+  async update(
+    id,
+    { assignment_id, user_id, submission_url, grade, feedback }
+  ) {
     const result = await query(
       `UPDATE submissions
        SET assignment_id = $1,
@@ -36,21 +39,23 @@ const submissionModel = {
   },
 
   async delete(id) {
-    const result = await query(`DELETE FROM submissions WHERE id = $1 RETURNING *`, [id]);
+    const result = await query(
+      `DELETE FROM submissions WHERE id = $1 RETURNING *`,
+      [id]
+    );
     return result.rows[0];
   },
-async updateGrade(id, grade, feedback) {
-  const result = await query(
-    `UPDATE submissions
+  async updateGrade(id, grade, feedback) {
+    const result = await query(
+      `UPDATE submissions
      SET grade = $1,
          feedback = $2,
          updated_at = CURRENT_TIMESTAMP
      WHERE id = $3 RETURNING *`,
-    [grade, feedback || null, id]
-  );
-  return result.rows[0];
-}
-
+      [grade, feedback || null, id]
+    );
+    return result.rows[0];
+  },
 };
 
 export default submissionModel;

@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const ModuleModel = {
   async findAllByCourse(course_id) {

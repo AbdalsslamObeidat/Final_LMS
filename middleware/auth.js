@@ -22,7 +22,7 @@ export const authenticate = async (req, res, next) => {
     const user = await UserModel.findById(decoded.id); // Looking for the user in the DB using the decoded id
 
     if (!user) {
-      // User existance check
+      // User existance in DB check
       const error = new Error("User not found");
       error.statusCode = 401;
       throw error;

@@ -1,8 +1,14 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const EnrollmentModel = {
   // Create a new enrollment
-  async create({ user_id, course_id, enrolled_at = new Date(), completed_at = null, progress = 0 }) {
+  async create({
+    user_id,
+    course_id,
+    enrolled_at = new Date(),
+    completed_at = null,
+    progress = 0,
+  }) {
     const sql = `
       INSERT INTO enrollments (user_id, course_id, enrolled_at, completed_at, progress)
       VALUES ($1, $2, $3, $4, $5)
@@ -15,13 +21,17 @@ const EnrollmentModel = {
 
   // Find enrollment by id
   async findById(id) {
-    const { rows } = await query('SELECT * FROM enrollments WHERE id = $1', [id]);
+    const { rows } = await query("SELECT * FROM enrollments WHERE id = $1", [
+      id,
+    ]);
     return rows[0];
   },
 
   // Find all enrollments
   async findAll() {
-    const { rows } = await query('SELECT * FROM enrollments ORDER BY enrolled_at DESC');
+    const { rows } = await query(
+      "SELECT * FROM enrollments ORDER BY enrolled_at DESC"
+    );
     return rows;
   },
 
@@ -42,18 +52,24 @@ const EnrollmentModel = {
 
   // Delete enrollment by id
   async delete(id) {
-    await query('DELETE FROM enrollments WHERE id = $1', [id]);
+    await query("DELETE FROM enrollments WHERE id = $1", [id]);
   },
 
   // Find enrollments by user_id
   async findByUserId(user_id) {
-    const { rows } = await query('SELECT * FROM enrollments WHERE user_id = $1', [user_id]);
+    const { rows } = await query(
+      "SELECT * FROM enrollments WHERE user_id = $1",
+      [user_id]
+    );
     return rows;
   },
 
   // Find enrollments by course_id
   async findByCourseId(course_id) {
-    const { rows } = await query('SELECT * FROM enrollments WHERE course_id = $1', [course_id]);
+    const { rows } = await query(
+      "SELECT * FROM enrollments WHERE course_id = $1",
+      [course_id]
+    );
     return rows;
   },
 };

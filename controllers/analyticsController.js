@@ -1,17 +1,18 @@
-import { pool } from '../config/db.js';
+import { pool } from "../config/db.js";
 
 export const getStudentPerformanceAnalytics = async (req, res) => {
   try {
     const userRole = req.user.role;
     const userId = req.user.id;
 
-    const isInstructor = userRole === 'instructor';
+    const isInstructor = userRole === "instructor";
 
     const values = [];
+    let instructorJoinCondition = "";
     let whereClause = `WHERE u.role = 'student'`;
 
     if (isInstructor) {
-      whereClause += ` AND c.instructor_id = $1`;
+      instructorJoinCondition = `AND c.instructor_id = $1`;
       values.push(userId);
     }
 
@@ -27,7 +28,7 @@ export const getStudentPerformanceAnalytics = async (req, res) => {
         ROUND(AVG(s.grade), 2) AS avg_assignment_grade
       FROM users u
       LEFT JOIN enrollments e ON u.id = e.user_id
-      LEFT JOIN courses c ON e.course_id = c.id
+      LEFT JOIN courses c ON e.course_id = c.id ${instructorJoinCondition}
       LEFT JOIN submissions s ON s.user_id = u.id
       ${whereClause}
       GROUP BY u.id, u.name
@@ -42,10 +43,10 @@ export const getStudentPerformanceAnalytics = async (req, res) => {
       data: result.rows,
     });
   } catch (error) {
-    console.error('Error fetching student performance:', error);
+    console.error("Error fetching student performance:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch student performance analytics',
+      message: "Failed to fetch student performance analytics",
     });
   }
 };

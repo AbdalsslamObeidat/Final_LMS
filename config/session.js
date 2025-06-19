@@ -1,4 +1,3 @@
-import session from "express-session";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -8,7 +7,7 @@ if (!process.env.SESSION_SECRET) {
 
 const sessionConfig = {
   secret: process.env.SESSION_SECRET,
-  resave: false,
+  resave: false, // preventing unchanged session resave to reduce overhead
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === "production", // HTTPS only in production

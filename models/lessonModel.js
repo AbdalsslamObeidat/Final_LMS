@@ -1,27 +1,43 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const LessonModel = {
   // Create a new lesson
-  async create({ module_id, title, content_type, content_url, duration = 0, order }) {
+  async create({
+    module_id,
+    title,
+    content_type,
+    content_url,
+    duration = 0,
+    order,
+  }) {
     const sql = `
       INSERT INTO lessons (module_id, title, content_type, content_url, duration, "order")
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *;
     `;
-    const values = [module_id, title, content_type, content_url, duration, order];
+    const values = [
+      module_id,
+      title,
+      content_type,
+      content_url,
+      duration,
+      order,
+    ];
     const { rows } = await query(sql, values);
     return rows[0];
   },
 
   // Find a lesson by its ID
   async findById(id) {
-    const { rows } = await query('SELECT * FROM lessons WHERE id = $1', [id]);
+    const { rows } = await query("SELECT * FROM lessons WHERE id = $1", [id]);
     return rows[0];
   },
 
   // Retrieve all lessons
   async findAll() {
-    const { rows } = await query('SELECT * FROM lessons ORDER BY created_at DESC');
+    const { rows } = await query(
+      "SELECT * FROM lessons ORDER BY created_at DESC"
+    );
     return rows;
   },
 
@@ -46,8 +62,10 @@ const LessonModel = {
 
   // Delete a lesson by ID
   async delete(id) {
-    await query('DELETE FROM lessons WHERE id = $1', [id]);
-  }
+    const sql = "DELETE FROM lessons WHERE id = $1 RETURNING *";
+    const { rows } = await query(sql, [id]);
+    return rows[0]; // returns deleted lesson or undefined if not found
+  },
 };
 
 export default LessonModel;

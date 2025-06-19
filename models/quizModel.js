@@ -1,5 +1,5 @@
 // models/quizModel.js
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const QuizModel = {
   // Create a new quiz record
@@ -16,17 +16,14 @@ const QuizModel = {
 
   // Retrieve a quiz by its ID
   async findById(id) {
-    const { rows } = await query(
-      'SELECT * FROM quizzes WHERE id = $1',
-      [id]
-    );
+    const { rows } = await query("SELECT * FROM quizzes WHERE id = $1", [id]);
     return rows[0];
   },
 
   // Retrieve all quizzes
   async findAll() {
     const { rows } = await query(
-      'SELECT * FROM quizzes ORDER BY created_at DESC'
+      "SELECT * FROM quizzes ORDER BY created_at DESC"
     );
     return rows;
   },
@@ -48,23 +45,21 @@ const QuizModel = {
 
   // Delete a quiz by its ID
   async delete(id) {
-  const result = await query(
-    'DELETE FROM quizzes WHERE id = $1 RETURNING *',
-    [id]
-  );
-  return result.rows[0]; // Now it will contain the deleted quiz row
-},
-
+    const result = await query(
+      "DELETE FROM quizzes WHERE id = $1 RETURNING *",
+      [id]
+    );
+    return result.rows[0]; // Now it will contain the deleted quiz row
+  },
 
   // Get all quizzes for a specific lesson_id
   async findByLessonId(lessonId) {
     const { rows } = await query(
-      'SELECT * FROM quizzes WHERE lesson_id = $1 ORDER BY created_at DESC',
+      "SELECT * FROM quizzes WHERE lesson_id = $1 ORDER BY created_at DESC",
       [lessonId]
     );
     return rows;
   },
-
 };
 
 export default QuizModel;

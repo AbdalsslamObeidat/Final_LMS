@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const ProgressModel = {
   /**
@@ -64,7 +64,7 @@ const ProgressModel = {
 
     // Return progress summary
     return { total, completed, progress };
-  }
+  },
 };
 
 export default ProgressModel;

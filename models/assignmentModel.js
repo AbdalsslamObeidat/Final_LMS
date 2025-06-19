@@ -1,4 +1,4 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const assignmentModel = {
   async create({ lesson_id, title, description, deadline, max_score }) {
@@ -11,7 +11,9 @@ const assignmentModel = {
   },
 
   async getAll() {
-    const result = await query(`SELECT * FROM assignments`);
+    const result = await query(
+      `SELECT * FROM assignments ORDER BY deadline ASC`
+    );
     return result.rows;
   },
 
@@ -31,9 +33,12 @@ const assignmentModel = {
   },
 
   async delete(id) {
-    const result = await query(`DELETE FROM assignments WHERE id = $1 RETURNING *`, [id]);
+    const result = await query(
+      `DELETE FROM assignments WHERE id = $1 RETURNING *`,
+      [id]
+    );
     return result.rows[0];
-  }
+  },
 };
 
 export default assignmentModel;

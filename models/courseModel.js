@@ -1,8 +1,14 @@
-import { query } from '../config/db.js';
+import { query } from "../config/db.js";
 
 const CourseModel = {
   // Create a new course
-  async create({ title, description, instructor_id, category_id, thumbnail_url }) {
+  async create({
+    title,
+    description,
+    instructor_id,
+    category_id,
+    thumbnail_url,
+  }) {
     try {
       const { rows } = await query(
         `INSERT INTO courses 
@@ -13,22 +19,21 @@ const CourseModel = {
       );
       return rows[0];
     } catch (error) {
-      throw new Error('Failed to create course');
+      throw new Error("Failed to create course");
     }
   },
 
   // Read course by ID
   async findById(courseId) {
-    const { rows } = await query(
-      'SELECT * FROM courses WHERE id = $1',
-      [courseId]
-    );
+    const { rows } = await query("SELECT * FROM courses WHERE id = $1", [
+      courseId,
+    ]);
     return rows[0];
   },
 
   // Read all courses
   async findAll() {
-    const { rows } = await query('SELECT * FROM courses');
+    const { rows } = await query("SELECT * FROM courses");
     return rows;
   },
 
@@ -47,7 +52,7 @@ const CourseModel = {
       );
       return rows[0];
     } catch (error) {
-      throw new Error('Failed to update course');
+      throw new Error("Failed to update course");
     }
   },
 
@@ -55,54 +60,50 @@ const CourseModel = {
   async delete(courseId) {
     try {
       const { rows } = await query(
-        'DELETE FROM courses WHERE id = $1 RETURNING *',
+        "DELETE FROM courses WHERE id = $1 RETURNING *",
         [courseId]
       );
       return rows[0];
     } catch (error) {
-      throw new Error('Failed to delete course');
+      throw new Error("Failed to delete course");
     }
   },
 
   async updateApprovalStatus(courseId, isApproved) {
-  try {
-    const { rows } = await query(
-      `UPDATE courses
+    try {
+      const { rows } = await query(
+        `UPDATE courses
        SET is_approved = $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2
        RETURNING *`,
-      [isApproved, courseId]
-    );
-    return rows[0];
-  } catch (error) {
-    throw new Error('Failed to update course approval status');
-  }
-},
-async findPending() {
-  const { rows } = await query(
-    'SELECT * FROM courses WHERE is_approved = false'
-  );
-  return rows;
-},
-
-
-async updatePublishStatus(courseId, isPublished) {
-  try {
+        [isApproved, courseId]
+      );
+      return rows[0];
+    } catch (error) {
+      throw new Error("Failed to update course approval status");
+    }
+  },
+  async findPending() {
     const { rows } = await query(
-      `UPDATE courses
+      "SELECT * FROM courses WHERE is_approved = false"
+    );
+    return rows;
+  },
+
+  async updatePublishStatus(courseId, isPublished) {
+    try {
+      const { rows } = await query(
+        `UPDATE courses
        SET is_published = $1, updated_at = CURRENT_TIMESTAMP
        WHERE id = $2
        RETURNING *`,
-      [isPublished, courseId]
-    );
-    return rows[0];
-  } catch (error) {
-    throw new Error('Failed to update course publish status');
-  }
-}
-
-
-
+        [isPublished, courseId]
+      );
+      return rows[0];
+    } catch (error) {
+      throw new Error("Failed to update course publish status");
+    }
+  },
 };
 
 export default CourseModel;

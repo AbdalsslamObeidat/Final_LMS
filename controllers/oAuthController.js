@@ -65,7 +65,7 @@ export const googleCallback = (req, res, next) => {
 
           // Redirect to client with success
           return res.redirect(
-            `${process.env.FRONTEND_URL}/dashboard?login=success`
+            `${process.env.FRONTEND_URL}/oauth/callback?token=${accessToken}&role=${user.role}`
           );
         });
       } catch (error) {

@@ -45,8 +45,8 @@ router.get(
       const user = req.user;
       const token = UserModel.generateToken(user);
 
-      // Redirect to frontend with token in query params
-      res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+      // Redirect to frontend with token and role in query params
+      res.redirect(`http://localhost:3000/oauth/callback?token=${token}&role=${user.role}`);
     } catch (error) {
       console.error("Google callback error:", error);
       res.status(500).json({ success: false, error: "Internal server error" });

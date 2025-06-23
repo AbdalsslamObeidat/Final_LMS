@@ -1,4 +1,5 @@
 import EnrollmentModel from "../models/enrollmentModel.js";
+import CourseModel from "../models/courseModel.js";
 
 const EnrollmentController = {
   async create(req, res) {
@@ -42,8 +43,26 @@ const EnrollmentController = {
 
   async getAll(req, res) {
     try {
+      // Fetch all enrollments
       const enrollments = await EnrollmentModel.findAll();
-      res.json(enrollments);
+
+      // Fetch all courses (or only those needed)
+      const courseIds = enrollments.map(e => e.course_id);
+      const courses = await CourseModel.findAllByIds(courseIds);
+
+      // Map course_id to course object for quick lookup
+      const courseMap = {};
+      courses.forEach(course => {
+        courseMap[course.id] = course;
+      });
+
+      // Attach course details to each enrollment
+      const enrollmentsWithCourse = enrollments.map(enrollment => ({
+        ...enrollment,
+        course: courseMap[enrollment.course_id] || null,
+      }));
+
+      res.json({ enrollments: enrollmentsWithCourse });
     } catch (error) {
       console.error(error);
       res

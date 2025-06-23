@@ -68,6 +68,16 @@ const CourseModel = {
       throw new Error("Failed to delete course");
     }
   },
+  async findAllByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    // Build a parameterized query for the array of IDs
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(", ");
+    const { rows } = await query(
+      `SELECT * FROM courses WHERE id IN (${placeholders})`,
+      ids
+    );
+    return rows;
+  },
 
   async updateApprovalStatus(courseId, isApproved) {
     try {

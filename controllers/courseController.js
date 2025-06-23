@@ -2,9 +2,27 @@ import CourseModel from "../models/courseModel.js";
 
 const CourseController = {
   async create(req, res) {
-    const { title, description, instructor_id, category_id, thumbnail_url } = req.body;
-    if (!title || !description || !instructor_id || !category_id || !thumbnail_url) {
-      return res.status(400).json({ success: false, message: "All fields are required" });
+    const {
+      title,
+      description,
+      instructor_id,
+      category_id,
+      thumbnail_url,
+      is_published,
+      is_approved,
+    } = req.body;
+    if (
+      !title ||
+      !description ||
+      !instructor_id ||
+      !category_id ||
+      !thumbnail_url ||
+      is_published === undefined ||
+      is_approved === undefined
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
     }
 
     try {
@@ -14,6 +32,8 @@ const CourseController = {
         instructor_id,
         category_id,
         thumbnail_url,
+        is_published: false, // Default to false until published by admin
+        is_approved: false, // Default to false until approved by admin
       });
       res.status(201).json({ success: true, course });
     } catch (error) {
@@ -36,7 +56,9 @@ const CourseController = {
     try {
       const course = await CourseModel.findById(req.params.id);
       if (!course) {
-        return res.status(404).json({ success: false, message: "Course not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Course not found" });
       }
       res.json({ success: true, course });
     } catch (error) {
@@ -58,7 +80,12 @@ const CourseController = {
       });
 
       if (!updatedCourse) {
-        return res.status(404).json({ success: false, message: "Course not found or update failed" });
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message: "Course not found or update failed",
+          });
       }
 
       res.json({ success: true, course: updatedCourse });
@@ -73,7 +100,12 @@ const CourseController = {
       const deletedCourse = await CourseModel.delete(req.params.id);
 
       if (!deletedCourse) {
-        return res.status(404).json({ success: false, message: "Course not found or already deleted" });
+        return res
+          .status(404)
+          .json({
+            success: false,
+            message: "Course not found or already deleted",
+          });
       }
 
       res.json({
@@ -90,21 +122,31 @@ const CourseController = {
   async approveOrReject(req, res) {
     try {
       const courseId = req.params.id;
-      const { isApproved } = req.body;
+      const { is_approved } = req.body;
 
-      if (typeof isApproved !== "boolean") {
-        return res.status(400).json({ success: false, message: "isApproved must be true or false" });
+      if (typeof is_approved !== "boolean") {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "is_approved must be true or false",
+          });
       }
 
-      const updatedCourse = await CourseModel.updateApprovalStatus(courseId, isApproved);
+      const updatedCourse = await CourseModel.updateApprovalStatus(
+        courseId,
+        is_approved
+      );
 
       if (!updatedCourse) {
-        return res.status(404).json({ success: false, message: "Course not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Course not found" });
       }
 
       res.json({
         success: true,
-        message: `Course has been ${isApproved ? "approved" : "rejected"}`,
+        message: `Course has been ${is_approved ? "approved" : "rejected"}`,
         course: updatedCourse,
       });
     } catch (error) {
@@ -129,13 +171,23 @@ const CourseController = {
       const { isPublished } = req.body;
 
       if (typeof isPublished !== "boolean") {
-        return res.status(400).json({ success: false, message: "isPublished must be true or false" });
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "isPublished must be true or false",
+          });
       }
 
-      const updatedCourse = await CourseModel.updatePublishStatus(courseId, isPublished);
+      const updatedCourse = await CourseModel.updatePublishStatus(
+        courseId,
+        isPublished
+      );
 
       if (!updatedCourse) {
-        return res.status(404).json({ success: false, message: "Course not found" });
+        return res
+          .status(404)
+          .json({ success: false, message: "Course not found" });
       }
 
       res.json({

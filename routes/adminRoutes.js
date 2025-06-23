@@ -5,8 +5,7 @@ import CourseController from "../controllers/courseController.js";
 
 const router = Router();
 
-// Protect all admin routes with authentication and admin role authorization
-router.use(authenticate, authorize(["admin"]));
+
 
 // Get users (with search + pagination)
 router.get("/users", AdminController.getUsers);

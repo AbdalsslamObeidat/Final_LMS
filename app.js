@@ -19,6 +19,7 @@ import questionRoutes from "./routes/questionRoutes.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
 import progressRoutes from "./routes/progressRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 import { notFound, errorHandler } from "./middleware/error.js";
 import "./config/db.js";
@@ -82,6 +83,8 @@ app.use("/api/assignments", assignmentRoutes);
 app.use("/api/submissions", submissionRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use('/api/upload', uploadRoutes);
+
 
 // Health check
 app.get("/health", (req, res) => {

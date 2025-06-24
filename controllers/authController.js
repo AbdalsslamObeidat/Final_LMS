@@ -101,12 +101,14 @@ const AuthController = {
       res.json({
         success: true,
         accessToken,
+         role: user.role,
         user: {
           id: user.id,
           name: user.name,
           email: user.email,
           avatar: user.avatar,
           oauth_provider: user.oauth_provider,
+           role: user.role,
         },
       });
     } catch (error) {

@@ -43,15 +43,10 @@ router.get(
   async (req, res) => {
     try {
       const user = req.user;
-
       const token = UserModel.generateToken(user);
 
-      res.json({
-        success: true,
-        message: "Logged in with Google successfully",
-        token,
-        user,
-      });
+      // Redirect to frontend with token and role in query params
+      res.redirect(`http://localhost:3000/oauth/callback?token=${token}&role=${user.role}`);
     } catch (error) {
       console.error("Google callback error:", error);
       res.status(500).json({ success: false, error: "Internal server error" });

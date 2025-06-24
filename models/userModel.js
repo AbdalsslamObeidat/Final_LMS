@@ -25,7 +25,42 @@ const UserModel = {
       throw error;
     }
   },
+ async getAll({ limit, offset, search }) {
+    let baseQuery = "SELECT * FROM users";
+    let countQuery = "SELECT COUNT(*) FROM users";
+    let params = [];
+    let countParams = [];
+    let whereClause = "";
 
+    if (search) {
+      whereClause = " WHERE name ILIKE $1 OR email ILIKE $1";
+      params.push(`%${search}%`);
+      countParams.push(`%${search}%`);
+    }
+
+    // Pagination
+    let paginationClause = "";
+    if (limit) {
+      paginationClause += ` LIMIT $${params.length + 1}`;
+      params.push(limit);
+    }
+    if (offset) {
+      paginationClause += ` OFFSET $${params.length + 1}`;
+      params.push(offset);
+    }
+
+    // Final queries
+    const usersRes = await query(
+      baseQuery + whereClause + paginationClause,
+      params
+    );
+    const countRes = await query(countQuery + whereClause, countParams);
+
+    return {
+      users: usersRes.rows,
+      total: parseInt(countRes.rows[0].count, 10),
+    };
+  },
   async createGoogleUser({ googleId, email, name, avatar }) {
     try {
       const { rows } = await query(

@@ -26,7 +26,7 @@ import "./config/db.js";
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 mins
-  max: 100, // max requests per IP
+  max: 1000, // max requests per IP
   message: "Too many requests, please try again later",
 });
 

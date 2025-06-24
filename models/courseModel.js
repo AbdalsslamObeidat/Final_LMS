@@ -38,17 +38,25 @@ const CourseModel = {
   },
 
   // Update course
-  async update(courseId, { title, description, thumbnail_url }) {
+  async update(courseId, { title, description, thumbnail_url, category_id }) {
     try {
+      // Build dynamic query for partial update
+      const fields = [];
+      const values = [];
+      let idx = 1;
+      if (title !== undefined) { fields.push(`title = $${idx++}`); values.push(title); }
+      if (description !== undefined) { fields.push(`description = $${idx++}`); values.push(description); }
+      if (thumbnail_url !== undefined) { fields.push(`thumbnail_url = $${idx++}`); values.push(thumbnail_url); }
+      if (category_id !== undefined) { fields.push(`category_id = $${idx++}`); values.push(category_id); }
+      fields.push(`updated_at = CURRENT_TIMESTAMP`);
+      if (fields.length === 1) throw new Error('No fields to update');
+      values.push(courseId);
       const { rows } = await query(
         `UPDATE courses 
-         SET title = $1,
-             description = $2,
-             thumbnail_url = $3,
-             updated_at = CURRENT_TIMESTAMP
-         WHERE id = $4
+         SET ${fields.join(', ')}
+         WHERE id = $${values.length}
          RETURNING *`,
-        [title, description, thumbnail_url, courseId]
+        values
       );
       return rows[0];
     } catch (error) {
@@ -67,6 +75,16 @@ const CourseModel = {
     } catch (error) {
       throw new Error("Failed to delete course");
     }
+  },
+  async findAllByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+    // Build a parameterized query for the array of IDs
+    const placeholders = ids.map((_, i) => `$${i + 1}`).join(", ");
+    const { rows } = await query(
+      `SELECT * FROM courses WHERE id IN (${placeholders})`,
+      ids
+    );
+    return rows;
   },
 
   async updateApprovalStatus(courseId, isApproved) {

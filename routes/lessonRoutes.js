@@ -12,6 +12,9 @@ router.get("/get/:id", LessonController.getById);
 // Route to get all lessons
 router.get("/getall", LessonController.getAll);
 
+// Route to get all lessons for a module
+router.get("/module/:moduleId", LessonController.getByModuleId);
+
 // Route to update a lesson by its ID
 router.put("/update/:id", LessonController.update);
 

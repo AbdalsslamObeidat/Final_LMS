@@ -57,6 +57,16 @@ const LessonController = {
       res.status(500).json({ error: err.message });
     }
   },
+
+  // Handle request to retrieve all lessons for a module
+  async getByModuleId(req, res) {
+    try {
+      const lessons = await LessonModel.findAllByModule(req.params.moduleId);
+      res.json(lessons);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  },
 };
 
 export default LessonController;

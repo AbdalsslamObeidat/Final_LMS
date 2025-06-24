@@ -7,12 +7,13 @@ const LessonModel = {
     title,
     content_type,
     content_url,
+    content_text,
     duration = 0,
     order,
   }) {
     const sql = `
-      INSERT INTO lessons (module_id, title, content_type, content_url, duration, "order")
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO lessons (module_id, title, content_type, content_url, content_text, duration, "order")
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *;
     `;
     const values = [
@@ -20,6 +21,7 @@ const LessonModel = {
       title,
       content_type,
       content_url,
+      content_text,
       duration,
       order,
     ];
@@ -41,21 +43,30 @@ const LessonModel = {
     return rows;
   },
 
+  // Retrieve all lessons for a specific module
+  async findAllByModule(module_id) {
+    const { rows } = await query(
+      'SELECT * FROM lessons WHERE module_id = $1 ORDER BY "order" ASC',
+      [module_id]
+    );
+    return rows;
+  },
+
   // Update a lesson by ID
-  async update(id, { title, content_type, content_url, duration, order }) {
+  async update(id, { title, content_type, content_url, content_text, duration, order }) {
     const sql = `
       UPDATE lessons SET
         title = COALESCE($2, title),
         content_type = COALESCE($3, content_type),
         content_url = COALESCE($4, content_url),
-        duration = COALESCE($5, duration),
-        "order" = COALESCE($6, "order"),
-       
+        content_text = COALESCE($5, content_text),
+        duration = COALESCE($6, duration),
+        "order" = COALESCE($7, "order"),
         updated_at = CURRENT_TIMESTAMP
       WHERE id = $1
       RETURNING *;
     `;
-    const values = [id, title, content_type, content_url, duration, order];
+    const values = [id, title, content_type, content_url, content_text, duration, order];
     const { rows } = await query(sql, values);
     return rows[0];
   },

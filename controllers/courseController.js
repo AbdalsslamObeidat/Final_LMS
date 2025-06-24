@@ -2,23 +2,20 @@ import CourseModel from "../models/courseModel.js";
 
 const CourseController = {
   async create(req, res) {
+    console.log("Course create req.body:", req.body); // Debug log
     const {
       title,
       description,
       instructor_id,
       category_id,
       thumbnail_url,
-      is_published,
-      is_approved,
     } = req.body;
     if (
       !title ||
       !description ||
       !instructor_id ||
       !category_id ||
-      !thumbnail_url ||
-      is_published === undefined ||
-      is_approved === undefined
+      !thumbnail_url
     ) {
       return res
         .status(400)
@@ -70,13 +67,14 @@ const CourseController = {
   async update(req, res) {
     try {
       const courseId = req.params.id;
-      const { title, description, thumbnail_url } = req.body;
+      const { title, description, thumbnail_url, category_id } = req.body;
 
-      // Allow partial updates
+      // Allow partial updates, including category_id
       const updatedCourse = await CourseModel.update(courseId, {
         title,
         description,
         thumbnail_url,
+        category_id,
       });
 
       if (!updatedCourse) {

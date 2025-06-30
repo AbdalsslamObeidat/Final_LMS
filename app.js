@@ -27,7 +27,7 @@ import "./config/db.js";
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 mins
-  max: 1000, // max requests per IP
+  max: process.env.NODE_ENV === "development" ? 10000 : 1000, // much higher for dev
   message: "Too many requests, please try again later",
 });
 
@@ -37,10 +37,9 @@ app.use(limiter);
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(",") : "*",
+    origin: ["http://localhost:3000"], // always allow local frontend
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    //allow credentials (cookies, authorization headers)
     credentials: true,
   })
 );

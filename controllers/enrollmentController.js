@@ -32,7 +32,15 @@ const EnrollmentController = {
       const enrollment = await EnrollmentModel.findById(req.params.id);
       if (!enrollment)
         return res.status(404).json({ message: "Enrollment not found" });
-      res.json(enrollment);
+      // Fetch the course details
+      const course = await CourseModel.findById(enrollment.course_id);
+      res.json({
+        success: true,
+        enrollment: {
+          ...enrollment,
+          course: course || null
+        }
+      });
     } catch (error) {
       console.error(error);
       res

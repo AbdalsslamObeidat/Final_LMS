@@ -41,11 +41,43 @@ const CourseController = {
 
   async getAll(req, res) {
     try {
-      const courses = await CourseModel.findAll();
+      console.log('GET /api/courses/getall called with query:', req.query);
+      
+      const filters = {};
+      if (req.query.instructor_id) {
+        console.log('Filtering by instructor_id:', req.query.instructor_id);
+        filters.instructor_id = parseInt(req.query.instructor_id, 10);
+        if (isNaN(filters.instructor_id)) {
+          console.error('Invalid instructor_id format:', req.query.instructor_id);
+          return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid instructor_id format. Must be a number.' 
+          });
+        }
+      }
+      
+      console.log('Using filters:', filters);
+      const courses = await CourseModel.findAll(filters);
+      
+      console.log(`Found ${courses.length} courses with filters:`, filters);
+      if (courses.length > 0) {
+        console.log('First course sample:', {
+          id: courses[0].id,
+          title: courses[0].title,
+          instructor_id: courses[0].instructor_id,
+          is_published: courses[0].is_published,
+          is_approved: courses[0].is_approved
+        });
+      }
+      
       res.json({ success: true, courses });
     } catch (error) {
       console.error("Fetch courses error:", error);
-      res.status(500).json({ success: false, message: error.message });
+      res.status(500).json({ 
+        success: false, 
+        message: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   },
 

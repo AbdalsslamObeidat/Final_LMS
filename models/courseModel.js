@@ -31,10 +31,47 @@ const CourseModel = {
     return rows[0];
   },
 
-  // Read all courses
-  async findAll() {
-    const { rows } = await query("SELECT * FROM courses");
-    return rows;
+  // Read all courses with optional instructor filter
+  async findAll(filters = {}) {
+    try {
+      let queryText = "SELECT * FROM courses";
+      const queryParams = [];
+      const conditions = [];
+      let paramIndex = 1;
+
+      console.log('CourseModel.findAll() called with filters:', filters);
+
+      if (filters.instructor_id) {
+        console.log(`Adding instructor filter: instructor_id = ${filters.instructor_id}`);
+        conditions.push(`instructor_id = $${paramIndex++}`);
+        queryParams.push(filters.instructor_id);
+      }
+
+      if (conditions.length > 0) {
+        queryText += ` WHERE ${conditions.join(' AND ')}`;
+      }
+
+      console.log('Executing query:', queryText);
+      console.log('Query parameters:', queryParams);
+
+      const result = await query(queryText, queryParams);
+      
+      console.log(`Query returned ${result.rowCount} rows`);
+      if (result.rows.length > 0) {
+        console.log('First row sample:', {
+          id: result.rows[0].id,
+          title: result.rows[0].title,
+          instructor_id: result.rows[0].instructor_id,
+          is_published: result.rows[0].is_published,
+          is_approved: result.rows[0].is_approved
+        });
+      }
+
+      return result.rows;
+    } catch (error) {
+      console.error('Error in CourseModel.findAll:', error);
+      throw error;
+    }
   },
 
   // Update course

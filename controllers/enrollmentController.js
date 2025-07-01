@@ -153,10 +153,14 @@ const EnrollmentController = {
       const enrollments = await EnrollmentModel.findByCourseId(
         req.params.course_id
       );
-      res.json(enrollments);
+      res.json({
+        success: true,
+        enrollments: enrollments || []
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({
+        success: false,
         message: "Failed to get enrollments for course",
         error: error.message,
       });
